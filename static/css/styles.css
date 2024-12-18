@@ -2,14 +2,15 @@ body {
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
+    background-color: #F5F5F5; /* Светло-серый */
 }
 
 header {
     width: 100%;
     position: fixed;
-    background-color: #222126;
+    background-color: #1C1C1C; /* Оттенок черного */
     color: white;
-    padding: 10px 20px;
+    padding: 13px 20px;
     text-align: center;
 }
 
@@ -25,12 +26,12 @@ nav a {
 }
 
 main {
-    padding: 20px;
+    padding: 50px;
 }
 
 footer {
     text-align: center;
-    background-color: #333;
+    background-color: #1C1C1C; /* Оттенок черного */
     color: white;
     position: fixed;
     bottom: 0;
@@ -46,12 +47,12 @@ footer {
 }
 
 .menu-item {
-    flex: 1 1 calc(33.333% - 20px);
+    flex: 0 1 calc(33.333% - 20px);
     box-sizing: border-box;
     text-align: center;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
+    padding: 15px;
+    border: 1px solid #555555;
+    border-radius: 15px;
     background-color: #f9f9f9;
 }
 
@@ -60,7 +61,7 @@ footer {
     height: 200px;
     object-fit: cover;
     border-radius: 25px;
-    margin-bottom: 10px;
+    margin-bottom: 5px;
 }
 
 .menu-item h2 {
@@ -69,25 +70,25 @@ footer {
 }
 
 .menu-item h3 {
-     margin: 10px 0;
+    margin: 10px 0;
 }
 
 .menu-item p {
-     font-size: 0.9em;
+    font-size: 0.95em;
 }
 
 .menu-item a {
-     display: inline-block;
-     margin-top: 10px;
-     padding: 8px 16px;
-     background-color: #4CAF50;
-     color: white;
-     text-decoration: none;
-     border-radius: 4px;
+    display: inline-block;
+    margin-top: 10px;
+    padding: 10px 15px;
+    background-color: #C21807; /* Алый красный */
+    color: white;
+    text-decoration: none;
+    border-radius: 7px;
 }
 
 .menu-item a:hover {
-     background-color: #45a049;
+    background-color: #A21505; /* Более темный алый */
 }
 
 .message {
@@ -108,7 +109,7 @@ footer {
 }
 
 .dish-details {
-    max-width: 600px;
+    max-width: 500px;
     margin: 50px auto;
     text-align: center;
     padding: 20px;
@@ -136,6 +137,11 @@ footer {
     margin-bottom: 20px;
 }
 
+.dish-ingredients {
+    font-size: 1.1em;
+    color: #555;
+    margin-bottom: 20px;
+}
 .dish-price {
     font-size: 1.5em;
     font-weight: bold;
@@ -176,7 +182,7 @@ footer {
 
 .booking-form button, form button {
     padding: 10px 15px;
-    background-color: #333;
+    background-color: #1C1C1C; /* Оттенок черного */
     color: white;
     border: none;
     border-radius: 4px;
@@ -185,7 +191,7 @@ footer {
 }
 
 .booking-form button:hover, form button:hover {
-    background-color: #555;
+    background-color: #333333; /* Более темный черный */
 }
 
 ul {

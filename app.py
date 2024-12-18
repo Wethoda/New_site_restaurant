@@ -20,7 +20,8 @@ def init_db():
         name TEXT NOT NULL,
         description TEXT NOT NULL,
         price REAL NOT NULL,
-        image TEXT NOT NULL
+        image TEXT NOT NULL,
+        structure TEXT NOT NULL
     )''')
 
     c.execute('''CREATE TABLE IF NOT EXISTS booking (
@@ -69,12 +70,12 @@ def menu():
 def menu_item(item_id):
     conn = sqlite3.connect('users.db')
     c = conn.cursor()
-    c.execute("SELECT name, description, price, image FROM menu_items WHERE id = ?", (item_id,))
+    c.execute("SELECT name, description, price, image, ingredients FROM menu_items WHERE id = ?", (item_id,))
     item = c.fetchone()
     conn.close()
 
     if item:
-        dish = {"name": item[0], "description": item[1], "price": item[2], "image": item[3]}
+        dish = {"name": item[0], "description": item[1], "price": item[2], "image": item[3], "ingredients": item[4]}
         return render_template('menu_item.html', dish=dish)
     else:
         flash("Блюдо не найдено", "error")
