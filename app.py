@@ -39,7 +39,7 @@ def init_db():
 def home():
     conn = sqlite3.connect('users.db')
     c = conn.cursor()
-    c.execute("SELECT id, name, description, image FROM menu_items LIMIT 5")
+    c.execute("SELECT id, name, description, image FROM menu_items LIMIT 3") # Ограничение количества блюд
     items = c.fetchall()
     conn.close()
 
