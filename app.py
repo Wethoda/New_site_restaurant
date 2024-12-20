@@ -13,6 +13,7 @@ def init_db():
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         username TEXT UNIQUE NOT NULL,
         email TEXT UNIQUE NOT NULL,
+        number TEXT UNIQUE NOT NULL,
         password TEXT NOT NULL
     )''')
 
@@ -92,12 +93,13 @@ def booking():
 
     username = session['user']
 
-    # Получаем email пользователя из базы данных
+    # Get email and phone from the database
     conn = sqlite3.connect('users.db')
     cursor = conn.cursor()
-    cursor.execute("SELECT email FROM users WHERE username = ?", (username,))
+    cursor.execute("SELECT email, phone FROM users WHERE username = ?", (username,))
     user_data = cursor.fetchone()
     email = user_data[0] if user_data else ''
+    phone = user_data[1] if user_data else ''  # Ensure phone is defined
 
     if request.method == 'POST':
         email = request.form['email']
@@ -117,7 +119,7 @@ def booking():
         finally:
             conn.close()
 
-    return render_template('booking.html', username=username, email=email)
+    return render_template('booking.html', username=username, email=email, phone=phone)
 
 
 
@@ -158,22 +160,38 @@ def profile():
     if request.method == 'POST':
         new_username = request.form['username']
         new_email = request.form['email']
+        new_phone = request.form['phone']
         new_password = request.form['password']
-        hashed_password = generate_password_hash(new_password)
+
+        # Получаем старые данные пользователя из базы
+        c.execute("SELECT username, email, phone, password FROM users WHERE username = ?", (username,))
+        user_data = c.fetchone()
+
+        # Если новый пароль пустой, оставляем старый пароль
+        if new_password == '':
+            new_password = user_data[3]  # Старый пароль из базы данных
+        else:
+            # Хешируем новый пароль, если он был введен
+            new_password = generate_password_hash(new_password)
 
         try:
-            c.execute("UPDATE users SET username = ?, email = ?, password = ? WHERE username = ?", (new_username, new_email, hashed_password, username))
+            # Обновляем только те поля, которые были изменены
+            c.execute("UPDATE users SET username = ?, email = ?, phone = ?, password = ? WHERE username = ?",
+                       (new_username, new_email, new_phone, new_password, username))
             conn.commit()
             session['user'] = new_username  # Обновляем имя пользователя в сессии
             flash('Профиль успешно обновлён!', 'success')
         except sqlite3.IntegrityError:
             flash('Такое имя пользователя уже занято.', 'error')
 
-    c.execute("SELECT username, email FROM users WHERE username = ?", (username,))
+    # Загружаем данные пользователя из базы
+    c.execute("SELECT username, email, phone FROM users WHERE username = ?", (username,))
     user_data = c.fetchone()
     conn.close()
 
     return render_template('profile.html', user=user_data)
+
+
 
 
 
