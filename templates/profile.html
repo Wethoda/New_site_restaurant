@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block title %}Профиль{% endblock %}
+
+{% block content %}
+<body>
+    <h1>Профиль пользователя</h1>
+
+    <form method="POST">
+        <label for="username">Имя пользователя:</label>
+        <input type="text" name="username" value="{{ user[0] }}" required>
+
+        <label for="email">Email:</label>
+        <input type="email" name="email" value="{{ user[1] }}" required>
+
+        <label for="password">Password:</label>
+        <input type="password" name="password" value="{{ user[2] }}" required>
+
+        <button type="submit">Сохранить изменения</button>
+    </form>
+</body>
+{% endblock %}

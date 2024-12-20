@@ -12,6 +12,7 @@ def init_db():
     c.execute('''CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         username TEXT UNIQUE NOT NULL,
+        email TEXT UNIQUE NOT NULL,
         password TEXT NOT NULL
     )''')
 
@@ -25,13 +26,14 @@ def init_db():
     )''')
 
     c.execute('''CREATE TABLE IF NOT EXISTS booking (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL,
-    email TEXT NOT NULL,
-    phone TEXT NOT NULL,
-    date DATE NOT NULL,
-    time TIME NOT NULL,
-    guests INTEGER NOT NULL)''')
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        email TEXT NOT NULL,
+        phone TEXT NOT NULL,
+        date DATE NOT NULL,
+        time TIME NOT NULL,
+        guests INTEGER NOT NULL
+    )''')
 
     conn.commit()
     conn.close()
@@ -88,8 +90,16 @@ def booking():
         flash('You must be logged in to make a booking.', 'error')
         return redirect(url_for('login'))
 
+    username = session['user']
+
+    # Получаем email пользователя из базы данных
+    conn = sqlite3.connect('users.db')
+    cursor = conn.cursor()
+    cursor.execute("SELECT email FROM users WHERE username = ?", (username,))
+    user_data = cursor.fetchone()
+    email = user_data[0] if user_data else ''
+
     if request.method == 'POST':
-        username = session['user']
         email = request.form['email']
         phone = request.form['phone']
         date = request.form['date']
@@ -97,38 +107,75 @@ def booking():
         guests = request.form['guests']
 
         try:
-            conn = sqlite3.connect('users.db')
-            cursor = conn.cursor()
-            cursor.execute("INSERT INTO booking(name, email, phone, date, time, guests) VALUES(?, ?, ?, ?, ?, ?)", (username, email, phone, date, time, guests))
+            cursor.execute("INSERT INTO booking(name, email, phone, date, time, guests) VALUES(?, ?, ?, ?, ?, ?)",
+                           (username, email, phone, date, time, guests))
             conn.commit()
-            conn.close()
-            flash('Бронирование прошло успешно','success')
+            flash('Бронирование прошло успешно', 'success')
         except sqlite3.IntegrityError:
             flash('Дата уже забронирована', 'error')
             return redirect(url_for('booking'))
+        finally:
+            conn.close()
 
-    return render_template('booking.html', username=session['user'])
+    return render_template('booking.html', username=username, email=email)
+
+
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
+        email = request.form.get('email', 'no_email@domain.com')
         hashed_password = generate_password_hash(password)
 
         try:
             conn = sqlite3.connect('users.db')
             c = conn.cursor()
-            c.execute("INSERT INTO users (username, password) VALUES (?, ?)", (username, hashed_password))
+            c.execute("INSERT INTO users (username, password, email) VALUES (?, ?, ?)", (username, hashed_password, email))
             conn.commit()
             conn.close()
-            flash('Регистрация прошла успешно!.', 'success')
+            flash('Регистрация прошла успешно!', 'success')
             return redirect(url_for('login'))
         except sqlite3.IntegrityError:
             flash('Пользователь уже зарегистрирован!', 'error')
-            return redirect(url_for('login'))
+            return redirect(url_for('register'))
 
     return render_template('register.html')
+
+
+@app.route('/profile', methods=['GET', 'POST'])
+def profile():
+    if 'user' not in session:
+        flash('Сначала войдите в аккаунт.', 'error')
+        return redirect(url_for('login'))
+
+    username = session['user']
+
+    conn = sqlite3.connect('users.db')
+    c = conn.cursor()
+
+    if request.method == 'POST':
+        new_username = request.form['username']
+        new_email = request.form['email']
+        new_password = request.form['password']
+        hashed_password = generate_password_hash(new_password)
+
+        try:
+            c.execute("UPDATE users SET username = ?, email = ?, password = ? WHERE username = ?", (new_username, new_email, hashed_password, username))
+            conn.commit()
+            session['user'] = new_username  # Обновляем имя пользователя в сессии
+            flash('Профиль успешно обновлён!', 'success')
+        except sqlite3.IntegrityError:
+            flash('Такое имя пользователя уже занято.', 'error')
+
+    c.execute("SELECT username, email FROM users WHERE username = ?", (username,))
+    user_data = c.fetchone()
+    conn.close()
+
+    return render_template('profile.html', user=user_data)
+
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():

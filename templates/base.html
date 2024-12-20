@@ -13,6 +13,7 @@
             <a href="/menu">Меню</a>
             {% if session.get('user') %}
                 | <a href="/booking">Бронирование</a>
+                | <a href="/profile">Профиль</a>
                 | <span>Добро пожаловать, {{ session['user'] }}!</span>
                 | <a href="/logout">Выйти из аккаунта</a>
             {% else %}
